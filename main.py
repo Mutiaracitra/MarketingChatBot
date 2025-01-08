@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 from generate import generate_response
 from utils import getDocEmbeds, conversational_chat
 from streamlit_chat import message
-from prompt_engineering import get_system_prompt
+from langchain.prompts import PromptTemplate  # Import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import ChatOpenAI  # Sesuaikan impor ChatOpenAI jika dari langchain.chat_models
 
 # Set Streamlit page configuration
 st.set_page_config(layout="wide", page_icon="💬", page_title="MarketingBot")
@@ -40,6 +40,16 @@ def load_and_process_csv_files():
             st.stop()
         data[key] = pd.read_csv(path)
     return data
+
+# Function to get the system prompt
+def get_system_prompt():
+    """
+    Returns the system prompt to define the chatbot's behavior.
+    """
+    return PromptTemplate(template="""
+        You are an advanced marketing assistant, providing data-driven insights and actionable recommendations to improve product marketing strategies. 
+        If the requested data is not available in the dataset, provide a thoughtful and general response based on your knowledge as an AI assistant.
+    """)
 
 # Function to initialize chatbot pipeline
 def initialize_pipeline():
