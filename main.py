@@ -8,7 +8,10 @@ from streamlit_chat import message
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI  
-from prompt_engineering import get_system_prompt  
+from langchain.prompts import SystemMessagePromptTemplate
+from langchain.prompts.chat import ChatPromptTemplate
+from langchain.schema import SystemMessage
+from prompt_engineering import get_system_prompt, get_task_prompt
 
 # Set Streamlit page configuration
 st.set_page_config(layout="wide", page_icon="💬", page_title="MarketingBot")
@@ -35,10 +38,13 @@ CSV_FILE_PATHS = {
 def load_and_process_csv_files():
     data = {}
     for key, path in CSV_FILE_PATHS.items():
-        if not os.path.exists(path):
-            st.error(f"File tidak ditemukan: {path}")
+        try:
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"File tidak ditemukan: {path}")
+            data[key] = pd.read_csv(path)
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat memuat file {key}: {e}")
             st.stop()
-        data[key] = pd.read_csv(path)
     return data
 
 # Function to initialize chatbot pipeline
@@ -53,21 +59,25 @@ def initialize_pipeline():
             file = uploaded_file.read()
         vectors = getDocEmbeds(file, doc_path)
 
-        # Load system prompt
-        system_prompt = get_system_prompt()
-
-        # Initialize memory for conversation
+        # Load system prompt and add to memory
+        system_prompt = get_system_prompt().template
         memory = ConversationBufferMemory(
             memory_key="chat_history",
             return_messages=True,
             max_memory=10
         )
+        memory.chat_memory.add_message(SystemMessage(content=system_prompt))
+
+        # Add task-specific prompt if available
+        task_prompt = get_task_prompt("real_time_insights")  # Example question type
+        if task_prompt:
+            memory.chat_memory.add_message(SystemMessage(content=task_prompt))
 
         # Initialize conversational retrieval chain
         chain = ConversationalRetrievalChain.from_llm(
             llm=ChatOpenAI(temperature=0.0, model_name="gpt-3.5-turbo"),
             retriever=vectors.as_retriever(),
-            memory=memory,
+            memory=memory
         )
 
         return chain
