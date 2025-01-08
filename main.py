@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 from generate import generate_response
 from utils import getDocEmbeds, conversational_chat
 from streamlit_chat import message
-from langchain.prompts import PromptTemplate  
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI  
+from prompt_engineering import get_system_prompt  
+
 # Set Streamlit page configuration
 st.set_page_config(layout="wide", page_icon="💬", page_title="MarketingBot")
 
@@ -20,7 +21,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     st.error("API Key untuk OpenAI tidak ditemukan. Pastikan telah diset di file .env.")
     st.stop()
-
+    
 # Set CSV file paths
 CSV_FILE_PATHS = {
     "product_catalog": "data/product_catalog.csv",
@@ -39,16 +40,6 @@ def load_and_process_csv_files():
             st.stop()
         data[key] = pd.read_csv(path)
     return data
-
-# Function to get the system prompt
-def get_system_prompt():
-    """
-    Returns the system prompt to define the chatbot's behavior.
-    """
-    return PromptTemplate(template="""
-        You are an advanced marketing assistant, providing data-driven insights and actionable recommendations to improve product marketing strategies. 
-        If the requested data is not available in the dataset, provide a thoughtful and general response based on your knowledge as an AI assistant.
-    """)
 
 # Function to initialize chatbot pipeline
 def initialize_pipeline():
