@@ -5,11 +5,10 @@ from dotenv import load_dotenv
 from generate import generate_response
 from utils import getDocEmbeds, conversational_chat
 from streamlit_chat import message
-from langchain.prompts import PromptTemplate  # Import PromptTemplate
+from langchain.prompts import PromptTemplate  
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
-from langchain.chat_models import ChatOpenAI  # Sesuaikan impor ChatOpenAI jika dari langchain.chat_models
-
+from langchain.chat_models import ChatOpenAI  
 # Set Streamlit page configuration
 st.set_page_config(layout="wide", page_icon="💬", page_title="MarketingBot")
 
