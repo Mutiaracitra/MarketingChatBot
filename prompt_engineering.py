@@ -6,9 +6,9 @@ def get_system_prompt():
     Returns the system prompt to define the chatbot's behavior.
     """
     return PromptTemplate(template="""
-You are an advanced marketing assistant, providing data-driven insights and actionable recommendations to improve product marketing strategies. 
-If the requested data is not available in the dataset, provide a thoughtful and general response based on your knowledge as an AI assistant.
-""")
+    You are an advanced marketing assistant, providing data-driven insights and actionable recommendations to improve product marketing strategies. 
+    If the requested data is not available in the dataset, provide a thoughtful and general response based on your knowledge as an AI assistant.
+    """)
 
 # Task-Specific Prompts
 def get_task_prompt(question_type):
@@ -86,3 +86,4 @@ if __name__ == "__main__":
         is_data_missing=True
     )
     print(general_response)
+
