@@ -1,4 +1,5 @@
 import os
+import openai
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
@@ -33,6 +34,31 @@ CSV_FILE_PATHS = {
     "amazon_review": "data/amazon_review_combined3.csv",
     "basic_info_instagram": "data/basic_info_instagram.csv",
 }
+
+# Function to handle streaming chat
+def stream_chat(messages):
+    """
+    Handles chat conversation and generates a partial response using OpenAI's streaming API.
+    """
+    response = ""
+    try:
+        # Stream response from OpenAI API
+        stream_response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            stream=True,
+            temperature=0.7
+        )
+
+        # Yield response chunks
+        for chunk in stream_response:
+            if "choices" in chunk and len(chunk["choices"]) > 0:
+                delta = chunk["choices"][0].get("delta", {}).get("content", "")
+                response += delta
+                yield delta
+
+    except Exception as e:
+        yield f"Error: {e}"
 
 # Function to check and load CSV files
 def load_and_process_csv_files():
